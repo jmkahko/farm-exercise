@@ -106,10 +106,17 @@ public class MeasurementController {
                                 }
                             }
                             
+                            // Tuodaan Measurement model tallennusta varten ja alusteen jokaisella kierroksella
+                            Measurement mittaus = new Measurement();
+
                             // Jos tarkistuksessa tuli TRUE niin tieto lisätään tietokantaan
                             if (lisataanko == true) {
                                 // Tänne lisäys komento tietokantaan
-                                measurementRepository.save(new Measurement());
+                                mittaus.setLocation(location);
+                                mittaus.setDatetime(datetime);
+                                mittaus.setSensortype(sensortype);
+                                mittaus.setValue(value);
+                                measurementRepository.save(mittaus);
                                 lisatty++;
                              }
                         } else {
@@ -134,7 +141,7 @@ public class MeasurementController {
         System.out.println("Läpi käydyt rivit: " + (riveja-1)); // Muuten kaikki paitsi ei lueta eka riviä kun otsikko
         System.out.println("Lisätyt! Lämpötila: " + lisattyTemperature + ", pH: " + lisattypH + ", sademäärä: " + lisattyRainFall);
         
-        return "mittaus";
+        return "redirect:/mittaus";
     }
 
 }
