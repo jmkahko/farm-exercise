@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Farm harjoitus - Mittaustuloksien tallennus</title>
+    </head>
+    <body>
+        <h1>Tallenna anturien mittaustulokset</h1>
+    </body>
+    <from th:action="@{/tallennaMittaus}" method="POST">
+        <input type="file" id="farmTiedosto" name="farmTiedosto">
+        <input type="submit">
+    </from>
+</html>
