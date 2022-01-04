@@ -61,16 +61,3 @@ public class Measurement extends AbstractPersistable<Long> {
         this.value = value;
     }
 }
-
-/*
-CREATE TABLE measurement (
-    id SERIAL PRIMARY KEY,
-    location VARCHAR(50) NOT NULL,
-    datetime VARCHAR(24) NOT NULL,
-	sensortype VARCHAR(11) NOT NULL,
-    value DECIMAL NOT NULL
-);
-*/ 
-
-// https://ntsim.uk/posts/how-to-use-hibernate-identifier-sequence-generators-properly
-// CREATE SEQUENCE public.hibernate_sequence INCREMENT 1 START 1 MINVALUE 1;

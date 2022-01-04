@@ -1,13 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="https://www.thymeleaf.org">
     <head>
         <title>Farm harjoitus - Mittaustuloksien tallennus</title>
     </head>
     <body>
         <h1>Tallenna anturien mittaustulokset</h1>
+    
+        <form th:action="@{/tallennaMittaus}" method="POST" enctype="multipart/form-data"> 
+            <input type="file" name="file" />
+            <input type="submit" value="Lähetä"/>
+        </form>
+
+        <h2>Tallennetut tiedostot</h2>
+        <p>Oheiset tiedostot löytyvät tiedostona tietokannasta ja csv-tiedoston sisältö ladattu mittaustaulukkoon.</p>
+        <p>Poisto poistaa ainoastaan Tiedoston tietokannasta ja palvelimelta, mutta ei mittaustietoja</p>
+        <table class="table table-striped" id="haku" border="1">
+            <thead>
+                <tr>
+                    <th>Tiedostonnimi</th>
+                    <th>Mediatyyppi</th>
+                    <th>Koko</th>
+                    <th>Tallennettu</th>
+                    <th>Poista</th>
+                </tr>
+            </thead>
+                <tbody id="taulukko">
+                <tr th:each="tiedosto : ${tiedosto}" class="item">
+                    <td>
+                        <a th:href="@{/tallennaMittaus/{id}(id=${tiedosto.id})}" th:text="${tiedosto.tiedostonnimi}">file name</a>
+                    </td>
+                    <td>
+                        <span th:text="${tiedosto.mediatyyppi}"></span>
+                    </td>
+                    <td>
+                        <span th:text="${tiedosto.tiedostonkoko}"></span>
+                    </td>
+                    <td>
+                        <span th:text="${tiedosto.tallennettu}"></span>
+                    </td>
+                    <td>
+                        <form th:action="@{/poistaMittaus/{id}(id=${tiedosto.id})}" th:method="DELETE"><input type="submit" value="Poista"/></form>
+                    </td>
+                </tr>  
+            </tbody>
+        </table>
     </body>
-    <from th:action="@{/tallennaMittaus}" method="POST">
-        <input type="file" id="farmTiedosto" name="farmTiedosto">
-        <input type="submit">
-    </from>
 </html>
