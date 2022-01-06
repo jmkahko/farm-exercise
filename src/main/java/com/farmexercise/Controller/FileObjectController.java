@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class FileObjectController {
@@ -35,8 +36,6 @@ public class FileObjectController {
     @Autowired
     private MeasurementRepository measurementRepository;
 
-    public Boolean liite;
-    
     @GetMapping("/tallennaMittaus")
     public String haeKaikki(Model model) {
         model.addAttribute("tiedosto", fileObjectRepository.findAll());
@@ -49,182 +48,196 @@ public class FileObjectController {
         // Haetaan halutun rivin id tieto
         FileObject fo = fileObjectRepository.getById(id);
 
-        final HttpHeaders headers = new HttpHeaders(); 
-        
+        final HttpHeaders headers = new HttpHeaders();
+
         headers.setContentType(MediaType.parseMediaType(fo.getMediatyyppi()));
         headers.setContentLength(fo.getTiedostonkoko());
         headers.add("Content-Disposition", "attachment; filename=" + fo.getTiedostonnimi());
 
-        return new ResponseEntity<>(fo.getContent(), headers, HttpStatus.CREATED); 
+        return new ResponseEntity<>(fo.getContent(), headers, HttpStatus.CREATED);
     }
 
-    // Tallennetaan tiedosto tietokantaan ja palvelimelle. Palvelimen tiedostosta parseroidaan tietokantaan
+    // Tallennetaan tiedosto tietokantaan ja palvelimelle. Palvelimen tiedostosta
+    // parseroidaan tietokantaan
     @PostMapping("/tallennaMittaus")
-    public String tallenna(@RequestParam("file") MultipartFile file) throws IOException {
+    public String tallenna(@RequestParam("file") MultipartFile file, RedirectAttributes attributes) throws IOException {
 
         // Tarkistetaan onko liitetiedostoa
         if (file.isEmpty()) {
             System.out.println("Tiedostoa ei ole");
-            liite = false;
-        } else {
-            System.out.println("Tiedosto löytyy");
-            liite = true;
+            attributes.addFlashAttribute("message", "Valitse ladattava tiedosto");
+            return "redirect:/tallennaMittaus";
+        }
 
-            // Tuodaan FileObject modelli
-            FileObject fo = new FileObject();
+        // Tuodaan FileObject modelli
+        FileObject fo = new FileObject();
 
-            // Tallennetaan tiedosto myös levylle ./LadatutTiedostot kansioon
-            OutputStream out = null;
+        // Tallennetaan tiedosto myös levylle ./LadatutTiedostot kansioon
+        OutputStream out = null;
 
-            String tiedostonNimi = Instant.now().toString() + "-" + file.getOriginalFilename();
+        String tiedostonNimi = Instant.now().toString() + "-" + file.getOriginalFilename();
 
-            // Tallennetaan FileObject modelliin tiedot
-            fo.setContent(file.getBytes());
-            fo.setTiedostonnimi(tiedostonNimi);
-            fo.setMediatyyppi(file.getContentType());
-            fo.setTiedostonkoko(file.getSize());
-            fo.setTallennettu(Instant.now().toString());
-            
-            // Tallennetaan tietokantaan tallennettava tiedosto
-            fileObjectRepository.save(fo);
+        // Tallennetaan FileObject modelliin tiedot
+        fo.setContent(file.getBytes());
+        fo.setTiedostonnimi(tiedostonNimi);
+        fo.setMediatyyppi(file.getContentType());
+        fo.setTiedostonkoko(file.getSize());
+        fo.setTallennettu(Instant.now().toString());
 
-            // Luodaan halutun päätteinen tiedosto
-            out = new FileOutputStream(new File("./LadatutTiedostot/" + tiedostonNimi));
+        // Tallennetaan tietokantaan tallennettava tiedosto
+        fileObjectRepository.save(fo);
 
-            out.write(file.getBytes()); // Kirjoitetaan out muuttujaan ladatun tiedoston tiedot
-            out.flush(); // Tallennetaan data tiedostoon
-            out.close(); // Suljetaan tiedoston tallennus
+        // Luodaan halutun päätteinen tiedosto
+        out = new FileOutputStream(new File("./LadatutTiedostot/" + tiedostonNimi));
 
-            System.out.println("Tiedosto ladattu");
+        out.write(file.getBytes()); // Kirjoitetaan out muuttujaan ladatun tiedoston tiedot
+        out.flush(); // Tallennetaan data tiedostoon
+        out.close(); // Suljetaan tiedoston tallennus
 
-            int virhe = 0;
-            int lisatty = 0;
-            int riveja = 0;
-            int lisattypH = 0;
-            int lisattyTemperature = 0;
-            int lisattyRainFall = 0;
+        System.out.println("Tiedosto ladattu");
 
-            // Luetaan tiedosto
-            try (Scanner tiedostonLukija = new Scanner(new File("./LadatutTiedostot/" + tiedostonNimi))) {
+        int virhe = 0;
+        int lisatty = 0;
+        int riveja = 0;
+        int lisattypH = 0;
+        int lisattyTemperature = 0;
+        int lisattyRainFall = 0;
 
-                // Käydään tiedoston rivit yksikerrallaan läpi
-                while (tiedostonLukija.hasNextLine()) {
+        // Luetaan tiedosto
+        try (Scanner tiedostonLukija = new Scanner(new File("./LadatutTiedostot/" + tiedostonNimi))) {
 
-                    // Luetaan rivi muuttujaan tiedoston rivi
-                    String rivi = tiedostonLukija.nextLine();
-                    // Luodaan string muotoinen taulukko johon laitetaan csv-tiedostosta rivitiedot taltteen erottimena käytetään pilkkua
-                    String[] palat = rivi.split(",");
+            // Käydään tiedoston rivit yksikerrallaan läpi
+            while (tiedostonLukija.hasNextLine()) {
 
-                    // Tarkistetaan onko kaikissa sarakkeissa tietoa. Data may be missing from certain dates
-                    if (palat.length > 3) {
+                // Luetaan rivi muuttujaan tiedoston rivi
+                String rivi = tiedostonLukija.nextLine();
+                // Luodaan string muotoinen taulukko johon laitetaan csv-tiedostosta rivitiedot
+                // taltteen erottimena käytetään pilkkua
+                String[] palat = rivi.split(",");
 
-                        // Tarkistetaan onko value tai NULL sanaa
-                        if (!palat[3].equals("value") & !palat[3].equals("NULL")) {
+                // Tarkistetaan onko kaikissa sarakkeissa tietoa. Data may be missing from
+                // certain dates
+                if (palat.length > 3) {
 
-                            // Tuodaan omiin muuttujiin arvot
-                            String location = palat[0];
-                            String datetime = palat[1];
-                            String sensortype = palat[2];
-                            Double value = Double.valueOf(palat[3]); // Muutetaan string double muotoon
-        
-                            // Tarkistetaan onhan sensorien tyypit oikein. Accept only temperature,rainfall and PH data. Other metrics should be discarded
-                            if (sensortype.equals("temperature") || sensortype.equals("rainFall") || sensortype.equals("pH")) {
-                                
-                                // Onko lisäys tietokantaan mahdollinen
-                                Boolean lisataanko = false;
+                    // Tarkistetaan onko value tai NULL sanaa
+                    if (!palat[3].equals("value") & !palat[3].equals("NULL")) {
 
-                                // Tarkistetaan onko lämpötila halutussa rajoissa
-                                if (sensortype.equals("temperature")) {
-                                    // Lämpötila on celsiusarvo -50 ja 100 välillä
-                                    if (value >= -50 && value <= 100) {
-                                        lisattyTemperature++;
-                                        lisataanko = true;
-                                    } else {
-                                        System.out.println("VIRHE!!!! Lämpötila ei ole asteikolla: " + location + ", Päiväys: " + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
-                                        virhe++;
-                                    }
+                        // Tuodaan omiin muuttujiin arvot
+                        String location = palat[0];
+                        String datetime = palat[1];
+                        String sensortype = palat[2];
+                        Double value = Double.valueOf(palat[3]); // Muutetaan string double muotoon
+
+                        // Tarkistetaan onhan sensorien tyypit oikein. Accept only temperature,rainfall
+                        // and PH data. Other metrics should be discarded
+                        if (sensortype.equals("temperature") || sensortype.equals("rainFall")
+                                || sensortype.equals("pH")) {
+
+                            // Onko lisäys tietokantaan mahdollinen
+                            Boolean lisataanko = false;
+
+                            // Tarkistetaan onko lämpötila halutussa rajoissa
+                            if (sensortype.equals("temperature")) {
+                                // Lämpötila on celsiusarvo -50 ja 100 välillä
+                                if (value >= -50 && value <= 100) {
+                                    lisattyTemperature++;
+                                    lisataanko = true;
+                                } else {
+                                    System.out.println(
+                                            "VIRHE!!!! Lämpötila ei ole asteikolla: " + location + ", Päiväys: "
+                                                    + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
+                                    virhe++;
                                 }
-                                
-                                // Tarkistaan onko sademäärä halutuissa rajoissa
-                                if (sensortype.equals("rainFall")) {
-                                    // Sademäärä on positiivinen luku välillä 0 ja 500
-                                    if (value >= 0.0 && value <= 500) {
-                                        lisattyRainFall++;
-                                        lisataanko = true;
-                                    } else {
-                                        System.out.println("VIRHE!!!! Sademäärä ei ole asteikolla: " + location + ", Päiväys: " + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
-                                        virhe++;
-                                    }
-                                
-                                } 
-                            
-                                // Tarkistetaan onko pH arvo halutussa rajoissa
-                                if (sensortype.equals("pH")) {
-                                    // pH on desimaaliarvo välillä 0-14
-                                    if (value >= 0.0 && value <= 14.0) {
-                                        lisattypH++;
-                                        lisataanko = true;
-                                    } else {
-                                        System.out.println("VIRHE!!!! pH arvo ei ole asteikolla: " + location + ", Päiväys: " + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
-                                        virhe++;
-                                    }
-                                }
-                                
-                                // Tuodaan Measurement model tallennusta varten ja alusteen jokaisella kierroksella
-                                Measurement mittaus = new Measurement();
-
-                                // Jos tarkistuksessa tuli TRUE niin tieto lisätään tietokantaan
-                                if (lisataanko == true) {
-                                    // Tänne lisäys komento tietokantaan
-                                    mittaus.setLocation(location);
-                                    mittaus.setDatetime(datetime);
-                                    mittaus.setSensortype(sensortype);
-                                    mittaus.setValue(value);
-                                    measurementRepository.save(mittaus);
-                                    lisatty++;
-                                }
-                            } else {
-                                virhe++;
-                                System.out.println("VIRHE!!!! Sensori tyyppi virheellinen " + location + ", Päiväys: " + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
                             }
+
+                            // Tarkistaan onko sademäärä halutuissa rajoissa
+                            if (sensortype.equals("rainFall")) {
+                                // Sademäärä on positiivinen luku välillä 0 ja 500
+                                if (value >= 0.0 && value <= 500) {
+                                    lisattyRainFall++;
+                                    lisataanko = true;
+                                } else {
+                                    System.out.println(
+                                            "VIRHE!!!! Sademäärä ei ole asteikolla: " + location + ", Päiväys: "
+                                                    + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
+                                    virhe++;
+                                }
+
+                            }
+
+                            // Tarkistetaan onko pH arvo halutussa rajoissa
+                            if (sensortype.equals("pH")) {
+                                // pH on desimaaliarvo välillä 0-14
+                                if (value >= 0.0 && value <= 14.0) {
+                                    lisattypH++;
+                                    lisataanko = true;
+                                } else {
+                                    System.out
+                                            .println("VIRHE!!!! pH arvo ei ole asteikolla: " + location + ", Päiväys: "
+                                                    + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
+                                    virhe++;
+                                }
+                            }
+
+                            // Tuodaan Measurement model tallennusta varten ja alusteen jokaisella
+                            // kierroksella
+                            Measurement mittaus = new Measurement();
+
+                            // Jos tarkistuksessa tuli TRUE niin tieto lisätään tietokantaan
+                            if (lisataanko == true) {
+                                // Tänne lisäys komento tietokantaan
+                                mittaus.setFileobjectid(fo.getId()); // Haetaan FileObject tauluun tallennetun rivin ID
+                                mittaus.setLocation(location);
+                                mittaus.setDatetime(datetime);
+                                mittaus.setSensortype(sensortype);
+                                mittaus.setValue(value);
+                                measurementRepository.save(mittaus);
+                                lisatty++;
+                            }
+                        } else {
+                            virhe++;
+                            System.out.println("VIRHE!!!! Sensori tyyppi virheellinen " + location + ", Päiväys: "
+                                    + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
                         }
-                        
-                    } else {
-                        System.out.println("VIRHE!!!! Liian vähän tietoa: " + palat[0]);
                     }
-                    // Lisätään luetun rivin määrä
-                    riveja++;
+
+                } else {
+                    System.out.println("VIRHE!!!! Liian vähän tietoa: " + palat[0]);
                 }
-            } catch (Exception e) {
-                System.out.println("Virhe: " + e.getMessage());
+                // Lisätään luetun rivin määrä
+                riveja++;
             }
+        } catch (Exception e) {
+            System.out.println("Virhe: " + e.getMessage());
+        }
 
-            // Tulostetaan lopputulos konsoliin
-            System.out.println("Virheellisiä: " + virhe);
-            System.out.println("Lisätyt rivit: " + lisatty);
-            System.out.println("Läpi käydyt rivit: " + (riveja-1)); // Muuten kaikki paitsi ei lueta eka riviä kun otsikko
-            System.out.println("Lisätyt! Lämpötila: " + lisattyTemperature + ", pH: " + lisattypH + ", sademäärä: " + lisattyRainFall);
-        }    
-        
+        // Tulostetaan lopputulos konsoliin
+        System.out.println("Virheellisiä: " + virhe);
+        System.out.println("Lisätyt rivit: " + lisatty);
+        System.out.println("Läpi käydyt rivit: " + (riveja - 1)); // Muuten kaikki paitsi ei lueta eka riviä kun otsikko
+        System.out.println("Lisätyt! Lämpötila: " + lisattyTemperature + ", pH: " + lisattypH + ", sademäärä: " + lisattyRainFall);
 
-        return "redirect:/tallennaMittaus"; 
+        // Näytetään käyttäjälle, kun tiedosto on ladattu
+        attributes.addFlashAttribute("message", "Tiedosto ladattu");
+        return "redirect:/tallennaMittaus";
     }
 
-    // Poistetaan haluttu tiedosto tietokannasta
-    @Transactional // Ilman tätä tulee lob stream virhettä. Tietokanta ei pysty tekemään automaattista committia ja kyseessä isot tiedostot
+    // Poistetaan haluttu tiedosto
+    @Transactional // Ilman tätä tulee lob stream virhettä. Tietokanta ei pysty tekemään
+                   // automaattista committia ja kyseessä isot tiedostot
     @PostMapping("/poistaMittaus/{id}")
     public String poista(@PathVariable Long id) {
-        
+
         // Tuodaan FileObject modelli
         FileObject fo = fileObjectRepository.getById(id);
-
+        
         // Poistetaan tiedosto palvelimen kiintolevyltä
         File tiedosto = new File("./LadatutTiedostot/" + fo.getTiedostonnimi());
         tiedosto.delete();
 
-        // Poistetaan haluttu rivi tietokannasta
+        // Poistetaan tiedot tietokannasta
         fileObjectRepository.deleteById(id);
-
-        return "redirect:/tallennaMittaus"; 
+        
+        return "redirect:/tallennaMittaus";
     }
 }

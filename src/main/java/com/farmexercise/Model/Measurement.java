@@ -22,12 +22,18 @@ public class Measurement extends AbstractPersistable<Long> {
     @GeneratedValue(generator = "measurement_id_seq", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "measurement_id_seq", sequenceName = "measurement_id_seq")
     private Long id;
+
+    private Long fileobjectid;
     private String location;
     private String datetime;
     private String sensortype;
     private Double value;
 
     // Getterit
+    public Long getFileobjectid() {
+        return fileobjectid;
+    }
+
     public String getLocation() {
         return location;
     }
@@ -45,6 +51,10 @@ public class Measurement extends AbstractPersistable<Long> {
     }
 
     // Setterit
+    public void setFileobjectid(Long fileobjectid) {
+        this.fileobjectid = fileobjectid;
+    }
+
     public void setLocation(String location) {
         this.location = location;
     }
