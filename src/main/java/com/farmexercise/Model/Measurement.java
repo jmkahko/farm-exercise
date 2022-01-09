@@ -1,5 +1,7 @@
 package com.farmexercise.Model;
 
+import java.time.Instant;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,7 +28,7 @@ public class Measurement extends AbstractPersistable<Long> {
 
     private Long fileobjectid;
     private String location;
-    private String datetime;
+    private Instant datetime;
     private String sensortype;
     private Double value;
 
@@ -39,7 +41,7 @@ public class Measurement extends AbstractPersistable<Long> {
         return location;
     }
 
-    public String getDatetime() {
+    public Instant getDatetime() {
         return datetime;
     }
 
@@ -60,7 +62,7 @@ public class Measurement extends AbstractPersistable<Long> {
         this.location = location;
     }
 
-    public void setDatetime(String datetime) {
+    public void setDatetime(Instant datetime) {
         this.datetime = datetime;
     }
 

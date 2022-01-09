@@ -1,5 +1,7 @@
 package com.farmexercise.Model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,7 +38,7 @@ public class FileObject extends AbstractPersistable<Long> {
     private String tiedostonnimi;
     private String mediatyyppi;
     private Long tiedostonkoko;
-    private String tallennettu;
+    private LocalDateTime tallennettu;
     
     // Getteri
     public Long getId() {
@@ -59,7 +61,7 @@ public class FileObject extends AbstractPersistable<Long> {
         return tiedostonkoko;
     }
 
-    public String getTallennettu () {
+    public LocalDateTime getTallennettu () {
         return tallennettu;
     }
 
@@ -84,7 +86,7 @@ public class FileObject extends AbstractPersistable<Long> {
         this.tiedostonkoko = tiedostonkoko;
     }
 
-    public void setTallennettu(String tallennettu) {
+    public void setTallennettu(LocalDateTime tallennettu) {
         this.tallennettu = tallennettu;
     }
 }
