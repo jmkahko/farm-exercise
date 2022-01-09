@@ -14,8 +14,8 @@ public class FarmExerciseApplication {
 	}
 
 	@Autowired
-  	JdbcTemplate jdbcTemplate;
-	
+	JdbcTemplate jdbcTemplate;
+
 	// Kun sovellus käynnistyy luodaan tietokannat aluksi
 	@Autowired
 	public void run() throws Exception {
@@ -33,7 +33,7 @@ public class FarmExerciseApplication {
 			System.out.println("Virhe: " + e);
 			System.out.println("Tietokantoja ei ollut, luodaan tietokannat: ");
 
-			// Luodaan fileobject tietokanta
+			// Luodaan fileobject taulu
 			System.out.println("Tietokanta: fileobject luotu");
 			jdbcTemplate.execute("CREATE TABLE fileobject (" +
 			"id SERIAL PRIMARY KEY," +
@@ -41,22 +41,26 @@ public class FarmExerciseApplication {
 			"tiedostonnimi VARCHAR(150) NOT NULL," +
 			"mediatyyppi VARCHAR(15) NOT NULL," +
 			"tiedostonkoko BIGINT NOT NULL," +
-			"tallennettu VARCHAR(27) NOT NULL)");	
+			"tallennettu TIMESTAMP NOT NULL)");	
 		
-			// Luodaan measurement tietokanta
+			// Luodaan measurement taulu
 			System.out.println("Tietokanta: measurement luotu");
 			jdbcTemplate.execute("CREATE TABLE measurement (" +
 			"id SERIAL PRIMARY KEY," +
 			"fileobjectid SERIAL NOT NULL," +
 			"location VARCHAR(50) NOT NULL," +
-			"datetime VARCHAR(27) NOT NULL," +
+			"datetime TIMESTAMP NOT NULL," +
 			"sensortype VARCHAR(11) NOT NULL," +
 			"value DECIMAL NOT NULL," +
 			"FOREIGN KEY (fileobjectid) REFERENCES fileobject(id)" +
 			// Komennolla saadaan "vyörytettyä" poisto. Eli kun tietopoistetaan fileobject taulusta, niin myös measurement taulusta poistuu kyseisen tiedoston rivit
 			"ON DELETE CASCADE)");
+
+			// Luodaan farm taulu
+			System.out.println("Tietokanta: farm luotu");
+			jdbcTemplate.execute("CREATE TABLE farm (" +
+			"id SERIAL PRIMARY KEY," +
+			"farmi VARCHAR(50) NOT NULL)");	
 		}
-
 	}
-
 }
