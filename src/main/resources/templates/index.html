@@ -1,7 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Etusivu</title>
+        <head th:replace="fragments/layout :: head(title='Etusivu - Tervetuloa Farmi-sivustolle')">
+            <title th:title="${title}">tekstiä</title>
+        </head>
     </head>
-    <h1>Etusivulla</h1>
+    <body>
+        <nav th:replace="fragments/layout :: nav"></nav>
+        <h1>Tervetuloa Farmi-sivustolle</h1>
+        <footer th:replace="fragments/layout :: footer"></footer>
+    </body>
 </html>

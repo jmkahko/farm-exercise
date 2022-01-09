@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="fragments/layout :: head(title='Farmin mittaukset')">
+        <title th:title="${title}">tekstiä</title>
+    </head>
+    <body>
+        <nav th:replace="fragments/layout :: nav"></nav>
+        <h1 th:each="farminimi : ${farminimi}">
+            <span th:text="${farminimi.farmi}"></span> -farmin mittaustuloksia
+        </h1>
+        <table class="table table-striped" id="haku" border="1">
+            <thead>
+                <tr>
+                    <th>Sensorin</th>
+                    <th>Määrä</th>
+                    <th>Mistä</th>
+                    <th>Mihin</th>
+                </tr>
+            </thead>
+                <tbody id="taulukko">
+                <tr th:each="yhteensaTuloksia : ${yhteensaTuloksia}" class="item">
+                    <td>
+                        <a th:href="@{/haeMaatilanJaAnturinMittaukset/{maatila}/{sensori}(maatila=${yhteensaTuloksia.location}, sensori=${yhteensaTuloksia.sensortype})}"><span th:text="${yhteensaTuloksia.sensortype}"></span></a>
+                    </td>
+                    <td>
+                        <span th:text="${yhteensaTuloksia.mittauksia}"></span>
+                    </td>
+                    <td>
+                        <span th:text="${yhteensaTuloksia.alkaa}"></span>
+                    </td>
+                    <td>
+                        <span th:text="${yhteensaTuloksia.loppuu}"></span>
+                    </td>
+                </tr>  
+            </tbody>
+        </table>
+
+        <h1>Mittaustulokset</h1>
+        <table class="table table-striped" id="haku" border="1">
+            <thead>
+                <tr>
+                    <th>Sensorin</th>
+                    <th>Minimi</th>
+                    <th>Maksimi</th>
+                    <th>Keskiarvo</th>
+                </tr>
+            </thead>
+                <tbody id="taulukko">
+                <tr th:each="tulos : ${tulos}" class="item">
+                    <td>
+                        <a th:href="@{/kuukausittaisetKeskiarvot/{maatila}/{sensori}(maatila=${tulos.location}, sensori=${tulos.sensortype})}"><span th:text="${tulos.sensortype}"></span></a>
+                    </td>
+                    <td>
+                        <span th:text="${tulos.valuemin}"></span>
+                    </td>
+                    <td>
+                        <span th:text="${tulos.valuemax}"></span>
+                    </td>
+                    <td>
+                        <span th:text="${tulos.valueavg}"></span>
+                    </td>
+                </tr>  
+            </tbody>
+        </table>
+        <footer th:replace="fragments/layout :: footer"></footer>
+    </body>
+</html>

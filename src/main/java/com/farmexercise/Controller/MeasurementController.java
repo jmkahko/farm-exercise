@@ -1,8 +1,11 @@
 package com.farmexercise.Controller;
 
 import java.util.List;
-import java.util.Map;
 
+import com.farmexercise.Model.MittauksiaYhteensa;
+import com.farmexercise.Model.MittausKeskiarvo;
+import com.farmexercise.Model.MittausKuukausi;
+import com.farmexercise.Repository.FarmRepository;
 import com.farmexercise.Repository.MeasurementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +22,9 @@ public class MeasurementController {
     private MeasurementRepository measurementRepository;
 
     @Autowired
+    private FarmRepository farmRepository;
+
+    @Autowired
     JdbcTemplate jdbcTemplate;
 
     // Haetaan kaikki mittaustulokset tietokannasta
@@ -32,56 +38,60 @@ public class MeasurementController {
             model.addAttribute("mittaus", measurementRepository.findAll());
             return "mittaus";
         }
-        
+
     }
 
-    // Tietyn farmin kaikki mittaukset
-    // SELECT * FROM measurement WHERE location = 'FARMI'
-    @GetMapping("/haeMaatilanKaikkiMittaukset/{maatila}")
-    public String haeMaatilanKaikkiMittaukset(Model model, @PathVariable String maatila){
-        model.addAttribute("mittaus", measurementRepository.findByLocation(maatila));
+    // Tietyn farmin ja anturin mittaukset
+    @GetMapping("/haeMaatilanJaAnturinMittaukset/{maatila}/{sensortype}")
+    public String haeMaatilanKaikkiMittaukset(Model model, @PathVariable String maatila,
+            @PathVariable String sensortype) {
+        model.addAttribute("mittaus", measurementRepository.findByLocationAndSensortype(maatila, sensortype));
         return "mittaus";
     }
 
-    // Farmin sensorien halutun aikavälin min, max, keskiarvo
-    //SELECT sensortype, MIN(value) as valueMin, MAX(value) as valueMax, AVG(value)::numeric(10,2) as value FROM measurement WHERE datetime <= 'ALKUAIKA' AND datetime >= 'LOPPUAIKA' AND location = 'FARMI' GROUP BY sensortype
-    @GetMapping("/haluttuAikavaliMin/Max/Avg/{alkuPaiva}/{loppuPaiva}/{maatila}")
-    public String haluttuAikavaliMinMaxAvg(Model model, @PathVariable String alkuPaiva, @PathVariable String loppuPaiva, @PathVariable String maatila) {
-        // Saadaan haettua tietyltä aikaväliltä tietyn farmin tapahtumat
-        //model.addAttribute("mittaus", measurementRepository.findByDatetimeBetweenAndLocation(alkuPaiva, loppuPaiva, maatila));
-  
-        //List<Measurement> tulos = measurementRepository.findByDatetimeBetweenAndLocation(alkuPaiva, loppuPaiva, maatila);
-
-
-        
-        List<Map<String, Object>> tulos = jdbcTemplate.queryForList(
-            "SELECT sensortype, MIN(value) as valueMin, MAX(value) as valueMax, AVG(value)::numeric(10,2) as value FROM measurement" +
-            "WHERE datetime =< ? AND datetime => ? AND location = ? GROUP BY sensortype;",
-            alkuPaiva, loppuPaiva, maatila);
-        
-            System.out.println("Tulooos: " + tulos);
-            model.addAttribute("mittaus", tulos);
-
-            System.out.println("Tulos: " + tulos);
-
-
-        return "mittaus";
-    }
-
-    // Farmin sensorien kuukausittaiset keskiarvot, min/max
+    // Farmin tietyn sensorin kuukausittaiset keskiarvot ja min/max
     @GetMapping("/kuukausittaisetKeskiarvot/{maatila}/{sensori}")
     public String kuukausittaisetKeskiarvot(Model model, @PathVariable String maatila, @PathVariable String sensori) {
-       
 
-        return null;
+        // Haetaan data MittausKuukausi -luokkaan
+        List<MittausKuukausi> mittausKuukausi = jdbcTemplate.query(
+                "SELECT DATE_TRUNC('month', datetime) as kuukausi, MIN(value) as valueMin, MAX(value) as valueMax, AVG(value)::numeric(10,2) as valueavg FROM measurement " +
+                "WHERE location = ? AND sensortype = ? GROUP BY DATE_TRUNC('month', datetime) ORDER BY kuukausi DESC",
+                (rs, rowNum) -> new MittausKuukausi(rs),
+                maatila, sensori);
+
+        model.addAttribute("mittausKuukausi", mittausKuukausi);
+
+        return "anturiKeskiarvot";
     }
 
-    // Farmin halutun aikavälin ja tietyn sensorin kaikkiarvot
-    // SELECT * FROM measurement WHERE datetime <= 'ALKUAIKA AND datetime >= 'LOPPUAIKA' AND location = 'FARMI' AND sensortype ='SENSORI'
-    @GetMapping("/haluttuAikavali/{alkuPaiva}/{loppuPaiva}/{maatila}/{sensori}")
-    public String haluttuAikavali(Model model, @PathVariable String alkuPaiva, @PathVariable String loppuPaiva, @PathVariable String maatila, @PathVariable String sensori) {
-        model.addAttribute("mittaus", measurementRepository.findByDatetimeBetweenAndLocationAndSensortype(alkuPaiva, loppuPaiva, maatila, sensori));
-        return "mittaus";
+    // Farmin sensorien keskiarvot ja min/max ja mittausten määrä yhteensä
+    @GetMapping("/haeFarminArvot/{maatila}")
+    public String kuukausittaisetKeskiarvot(Model model, @PathVariable String maatila) {
+
+        // Haetaan data MittausKeskiarvo -luokkaan
+        List<MittausKeskiarvo> sensorit = jdbcTemplate.query(
+                "SELECT location, sensortype, MIN(value) as valueMin, MAX(value) as valueMax, AVG(value)::numeric(10,2) as valueavg FROM measurement "
+                        +
+                        "WHERE location = ? " +
+                        "GROUP BY location, sensortype;",
+                (rs, rowNum) -> new MittausKeskiarvo(rs),
+                maatila);
+
+        // Haetaan miten paljon mittauksia yhteensa
+        List<MittauksiaYhteensa> mittauksiaYhteensa = jdbcTemplate.query(
+                "SELECT location, sensortype, min(datetime) as alkaa, max(datetime) as loppuu, count(sensortype) as mittauksia FROM measurement " +
+                        "WHERE location = ? " +
+                        "GROUP BY location, sensortype;",
+                (rs, rowNum) -> new MittauksiaYhteensa(rs),
+                maatila);
+
+        // Viedään mittaukset HTML-sivulle
+        model.addAttribute("farminimi", farmRepository.findByFarmi(maatila));
+        model.addAttribute("tulos", sensorit);
+        model.addAttribute("yhteensaTuloksia", mittauksiaYhteensa);
+
+        return "farmi";
     }
 
 }

@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="fragments/layout :: head(title='Tallennetut mittaukset')">
+    <head th:replace="fragments/layout :: head(title='Anturien kuukausittaiset keskiarvot')">
         <title th:title="${title}">tekstiä</title>
     </head>
     <body>
         <nav th:replace="fragments/layout :: nav"></nav>
-        <h1>Mittaustulokset</h1>
+        <h1>Kuukausittaiset keskiarvot</h1>
         <table class="table table-striped" id="haku" border="1">
             <thead>
                 <tr>
-                    <th>Farmi</th>
-                    <th>Päiväys</th>
-                    <th>Anturi</th>
-                    <th>Arvo</th>
+                    <th>Kuukausi</th>
+                    <th>Minimi</th>
+                    <th>Maksimi</th>
+                    <th>Keskiarvo</th>
                 </tr>
             </thead>
                 <tbody id="taulukko">
-                <tr th:each="mittaus : ${mittaus}" class="item">
+                <tr th:each="mittausKuukausi : ${mittausKuukausi}" class="item">
                     <td>
-                        <span th:text="${mittaus.location}"></span>
+                        <span th:text="${mittausKuukausi.kuukausi}"></span>
                     </td>
                     <td>
-                        <span th:text="${mittaus.datetime}"></span>
+                        <span th:text="${mittausKuukausi.valuemin}"></span>
                     </td>
                     <td>
-                        <span th:text="${mittaus.sensortype}"></span>
+                        <span th:text="${mittausKuukausi.valuemax}"></span>
                     </td>
                     <td>
-                        <span th:text="${mittaus.value}"></span>
+                        <span th:text="${mittausKuukausi.valueavg}"></span>
                     </td>
                 </tr>  
             </tbody>

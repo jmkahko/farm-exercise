@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="fragments/layout :: head(title='Tallennetut farmit')">
+        <title th:title="${title}">tekstiä</title>
+    </head>
+    <body>
+        <nav th:replace="fragments/layout :: nav"></nav>
+        <h1>Tallennetut farmit</h1>
+        <table class="table table-striped" id="haku" border="1">
+            <thead>
+                <tr>
+                    <th>Farmi</th>
+                </tr>
+            </thead>
+                <tbody id="taulukko">
+                <tr th:each="farmit : ${farmit}" class="item">
+                    <td>
+                        <a th:href="@{/haeFarminArvot/{maatila}(maatila=${farmit.farmi})}"><span th:text="${farmit.farmi}"></span></a>
+                    </td>
+                </tr>  
+            </tbody>
+        </table>
+        <footer th:replace="fragments/layout :: footer"></footer>
+    </body>
+</html>
