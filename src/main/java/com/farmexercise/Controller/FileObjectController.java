@@ -5,10 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
+import com.farmexercise.Model.Farm;
 import com.farmexercise.Model.FileObject;
 import com.farmexercise.Model.Measurement;
+import com.farmexercise.Repository.FarmRepository;
 import com.farmexercise.Repository.FileObjectRepository;
 import com.farmexercise.Repository.MeasurementRepository;
 
@@ -35,6 +38,9 @@ public class FileObjectController {
 
     @Autowired
     private MeasurementRepository measurementRepository;
+
+    @Autowired
+    private FarmRepository farmRepository;
 
     @GetMapping("/tallennaMittaus")
     public String haeKaikki(Model model) {
@@ -75,14 +81,14 @@ public class FileObjectController {
         // Tallennetaan tiedosto myös levylle ./LadatutTiedostot kansioon
         OutputStream out = null;
 
-        String tiedostonNimi = Instant.now().toString() + "-" + file.getOriginalFilename();
+        String tiedostonNimi = LocalDateTime.now() + "-" + file.getOriginalFilename();
 
         // Tallennetaan FileObject modelliin tiedot
         fo.setContent(file.getBytes());
         fo.setTiedostonnimi(tiedostonNimi);
         fo.setMediatyyppi(file.getContentType());
         fo.setTiedostonkoko(file.getSize());
-        fo.setTallennettu(Instant.now().toString());
+        fo.setTallennettu(LocalDateTime.now());
 
         // Tallennetaan tietokantaan tallennettava tiedosto
         fileObjectRepository.save(fo);
@@ -102,6 +108,7 @@ public class FileObjectController {
         int lisattypH = 0;
         int lisattyTemperature = 0;
         int lisattyRainFall = 0;
+        String farmiName = "";
 
         // Luetaan tiedosto
         try (Scanner tiedostonLukija = new Scanner(new File("./LadatutTiedostot/" + tiedostonNimi))) {
@@ -179,20 +186,32 @@ public class FileObjectController {
                                 }
                             }
 
-                            // Tuodaan Measurement model tallennusta varten ja alusteen jokaisella
-                            // kierroksella
+                            // Tuodaan Measurement model tallennusta varten ja alusteen jokaisella kierroksella
                             Measurement mittaus = new Measurement();
-
+                            
                             // Jos tarkistuksessa tuli TRUE niin tieto lisätään tietokantaan
                             if (lisataanko == true) {
+                                // Haetaan Farm model
+                                Farm farmi = new Farm();
+
+                                // Tarkistetaan löytyykö farmi tallennettava farmi, jos ei löydy niin luodaan uusi farmi Farm-tietokantaan
+                                if (farmRepository.findByFarmi(location) == null) {
+                                    System.out.println("Luodaan uusi farmi: " + location);
+                                    farmi.setFarmi(location);
+                                    farmRepository.save(farmi);
+                                }
+                                
                                 // Tänne lisäys komento tietokantaan
                                 mittaus.setFileobjectid(fo.getId()); // Haetaan FileObject tauluun tallennetun rivin ID
                                 mittaus.setLocation(location);
-                                mittaus.setDatetime(datetime);
+                                mittaus.setDatetime(Instant.parse(datetime));
                                 mittaus.setSensortype(sensortype);
                                 mittaus.setValue(value);
                                 measurementRepository.save(mittaus);
                                 lisatty++;
+                                
+                                // Listään farmiName muuttujaan farmin nimi
+                                farmiName = location;
                             }
                         } else {
                             virhe++;
@@ -218,7 +237,9 @@ public class FileObjectController {
         System.out.println("Lisätyt! Lämpötila: " + lisattyTemperature + ", pH: " + lisattypH + ", sademäärä: " + lisattyRainFall);
 
         // Näytetään käyttäjälle, kun tiedosto on ladattu
-        attributes.addFlashAttribute("message", "Tiedosto ladattu");
+        attributes.addFlashAttribute("message", "Farmin: " + farmiName + " -tiedot ladattu");
+        attributes.addFlashAttribute("messageLataus", "Lisätty: " + lisattyTemperature + " lämpötilaa, " + lisattypH + " pH-arvoa, " + lisattyRainFall + " sadearvoa");
+        attributes.addFlashAttribute("messageHylatyt", "Yhteensä lisätty " + lisatty + " riviä ja hylätty " + virhe);
         return "redirect:/tallennaMittaus";
     }
 
