@@ -3,9 +3,63 @@
     <head th:replace="fragments/layout :: head(title='Anturien kuukausittaiset keskiarvot')">
         <title th:title="${title}">tekstiä</title>
     </head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <body>
         <nav th:replace="fragments/layout :: nav"></nav>
         <h1>Kuukausittaiset keskiarvot</h1>
+        <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+
+        <!-- Tuodaan Charts.js viivadiagrammi -->
+        <script th:inline="javascript">
+            // Tuodaan mittausKuukausi-Model tieto MeasurementControllerilta
+            // Tulevat tiedot mittausKuukausi.kuukausi, mittausKuukausi.valuemin, mittausKuukausi.valuemax, mittausKuukausi.valueavg                   
+            let javaConvert = /*[[${mittausKuukausi}]]*/ null;
+            
+            // Esitellään kuukausi ja value muuttujien tyhjät taulukot
+            let valuemin = [];
+            let valuemax = [];
+            let valueavg = [];
+            let kuukausi = [];
+
+            // Käydään tuleva data läpi for silmukassa
+            for (let x = 0; x < javaConvert.length; x++) {
+                kuukausi.push(javaConvert[x].kuukausi.slice(0,7)); // Otetaan aikatiedosta ainoastaan vuosi ja kuukausi
+                valuemin.push(javaConvert[x].valuemin);
+                valuemax.push(javaConvert[x].valuemax);
+                valueavg.push(javaConvert[x].valueavg);
+            }
+               
+            new Chart("myChart", {
+              type: "line",
+              data: {
+                labels: kuukausi,
+                datasets: [{
+                  label: "Minimi",
+                  data: valuemin,
+                  borderColor: "red",
+                  fill: false
+                }, { 
+                  label: "Maksimi",
+                  data: valuemax,
+                  borderColor: "green",
+                  fill: false
+                }, { 
+                  label: "Keskiarvo",
+                  data: valueavg,
+                  borderColor: "blue",
+                  fill: false
+                }]
+              },
+              options: {
+                plugins: {
+                    title: {
+                        display: true,
+                    }
+                }
+              }
+            });
+        </script>
+
         <table class="table table-striped" id="haku" border="1">
             <thead>
                 <tr>
