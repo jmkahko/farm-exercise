@@ -6,7 +6,7 @@
     </head>
     <body>
         <nav th:replace="fragments/layout :: nav"></nav>
-        <h1>Tallenna anturien mittaustulokset</h1>
+        <h1>Tallenna farmin anturien mittaustulokset</h1>
 
         <div>
             <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
@@ -23,7 +23,7 @@
             </form>
         </div>
 
-        <h2>Tallennetut tiedostot</h2>
+        <h2>Tallennetut farmien mittaukset</h2>
         <p>Oheiset tiedostot löytyvät tiedostona tietokannasta ja csv-tiedoston sisältö ladattu mittaustaulukkoon.</p>
         <p>Poisto poistaa tietokannasta tiedoston ja tiedoston rivit</p>
         <table class="table table-striped" id="haku" border="1">

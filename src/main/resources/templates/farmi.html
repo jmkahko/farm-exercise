@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="fragments/layout :: head(title='Farmin mittaukset')">
+    <head th:replace="fragments/layout :: head(title='Farmin tallennetut tiedot')">
         <title th:title="${title}">tekstiä</title>
     </head>
     <body>
         <nav th:replace="fragments/layout :: nav"></nav>
         <h1 th:each="farminimi : ${farminimi}">
-            <span th:text="${farminimi.farmi}"></span> -farmin mittaustuloksia
+            <span th:text="${farminimi.farmi}"></span> -farmin mittaustulokset
         </h1>
         <table class="table table-striped" id="haku" border="1">
             <thead>
                 <tr>
-                    <th>Sensorin</th>
-                    <th>Määrä</th>
-                    <th>Mistä</th>
-                    <th>Mihin</th>
+                    <th>Sensori</th>
+                    <th>Tallennettuja rivejä</th>
+                    <th>Alkaa</th>
+                    <th>Loppuu</th>
                 </tr>
             </thead>
                 <tbody id="taulukko">
@@ -35,11 +35,11 @@
             </tbody>
         </table>
 
-        <h1>Mittaustulokset</h1>
+        <h1>Sensorien keskiarvot</h1>
         <table class="table table-striped" id="haku" border="1">
             <thead>
                 <tr>
-                    <th>Sensorin</th>
+                    <th>Sensori</th>
                     <th>Minimi</th>
                     <th>Maksimi</th>
                     <th>Keskiarvo</th>
