@@ -16,22 +16,22 @@ public class FarmExerciseApplication {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 
-	// Kun sovellus käynnistyy luodaan tietokannat aluksi
+	// Kun sovellus käynnistyy luodaan tietokannan taulut aluksi
 	@Autowired
 	public void run() throws Exception {
 
-		System.out.println("Aloitetaan tietokantojen luonti");
+		System.out.println("Aloitetaan tietokanta taulujen luonti");
 
-		// Tarkistetaan saadaanko selecti tehtyä fileobject tauluun, jos ei saada luodaan tietokannat
+		// Tarkistetaan saadaanko selecti tehtyä fileobject tauluun, jos ei saada luodaan taulut
 		try {
 			jdbcTemplate.query(
                 "SELECT tiedostonnimi FROM fileobject;",
                 (rs, rowNum) -> rs.getString("tiedostonnimi")
         		).forEach(System.out::println);
-			System.out.println("Tietokannat on jo luotu");
+			System.out.println("Tietokanta taulu on jo luotu");
 		} catch (Exception e) {
 			System.out.println("Virhe: " + e);
-			System.out.println("Tietokantoja ei ollut, luodaan tietokannat: ");
+			System.out.println("Tietokanta tauluja ei ollut, luodaan tietokannan taulut: ");
 
 			// Luodaan fileobject taulu
 			System.out.println("Tietokanta: fileobject luotu");
