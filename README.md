@@ -3,7 +3,7 @@ Tehtävän [Github-linkki](https://github.com/solita/dev-academy-2022-exercise)
 
 
 ## Edellytykset
-Projekti vaatii, että Java ja PostgreSQL toimivat koneella. PostgreSQL:ään voidaan käyttää Dockerin kautta ##!!LAITA TÄHÄN TIEDOSTO LINKKI
+Projekti vaatii, että Java ja PostgreSQL toimivat koneella. PostgreSQL:ään voidaan käyttää Dockeri [filen kautta](https://github.com/jmkahko/farm-exercise/blob/main/Docker/docker-compose.yml) 
 
 
 ## Projektin luonti
@@ -32,4 +32,6 @@ Tehtävän pohja on luotu Spring https://start.spring.io/ työkalulla.
 Tehtävässä käytettyjä teknologioita Java, Thymeleaf ja PostgreSQL.
 
 ## ToDo
-
+- Käyttäjien hallinta
+- Jos tietokanta on tyhjä, ohjataan suoraan farmin luontiin / mittaustietojen tallennukseen
+- Käyttäjien hallinnan lisäyksen jälkeen, farmien hallinta käyttäjille. Käyttäjä joka kuuluu tiettyyn farmiin, hän pystyy tallentamaan ainoastaan farmintietoja.
