@@ -35,7 +35,7 @@ Tehtävän pohja on luotu Spring https://start.spring.io/ työkalulla.
 
 Tehtävässä käytettyjä teknologioita Java, Thymeleaf ja PostgreSQL.
 
-## ToDo
-- Käyttäjien hallinta
-- Jos tietokanta on tyhjä, ohjataan suoraan farmin luontiin / mittaustietojen tallennukseen
-- Käyttäjien hallinnan lisäyksen jälkeen, farmien hallinta käyttäjille. Käyttäjä joka kuuluu tiettyyn farmiin, hän pystyy tallentamaan ainoastaan farmintietoja.
+## Tehtävä lista
+- [ ] Käyttäjien hallinta
+- [ ] Jos tietokanta on tyhjä, ohjataan suoraan farmin luontiin / mittaustietojen tallennukseen
+- [ ] Käyttäjien hallinnan lisäyksen jälkeen, farmien hallinta käyttäjille. Käyttäjä joka kuuluu tiettyyn farmiin, hän pystyy tallentamaan ainoastaan farmintietoja.
