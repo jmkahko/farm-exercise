@@ -7,21 +7,20 @@ Projekti vaatii, että Java ja PostgreSQL toimivat koneella. PostgreSQL:ään vo
 
 
 ## Projektin luonti
-Clonaa GitHubista projekti itsellesi
-
-´´´
+1. Clonaa GitHubista projekti itsellesi
+```
 git clone git@github.com:jmkahko/farm-exercise.git
-´´´
+```
 
-Luo tietokanta esimerksi [pgAdmin 4](http://localhost:5050/login?next=%2F)-työkalulla, jos käytetään Dockerin kautta PostgreSQL tietokantaa
-´´´
+2. Luo tietokanta esimerksi [pgAdmin 4](http://localhost:5050/login?next=%2F)-työkalulla, jos käytetään Dockerin kautta PostgreSQL tietokantaa
+```
 CREATE DATABASE farmExercise;
-´´´
+```
 
-Asetetaan sekvenssit tietokantaan [Lisää aiheesta](https://ntsim.uk/posts/how-to-use-hibernate-identifier-sequence-generators-properly).
-´´´
+3. Asetetaan sekvenssit tietokantaan [Lisää aiheesta](https://ntsim.uk/posts/how-to-use-hibernate-identifier-sequence-generators-properly).
+```
 CREATE SEQUENCE public.hibernate_sequence INCREMENT 1 START 1 MINVALUE 1;
-´´´
+```
 
 ## Projektin ajaminen
 Projekti voidaan käynnistää tämän jälkeen normaalisti Debugging tilassa. 
