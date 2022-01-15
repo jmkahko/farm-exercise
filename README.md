@@ -28,7 +28,9 @@ Projekti voidaan käynnistää tämän jälkeen normaalisti Debugging tilassa.
 ## Testit
 Testien tekoon hyödynnetty [JUnit 5 tutorial - Learn how to write unit tests](https://www.vogella.com/tutorials/JUnit/article.html) materiaalia.
 
-Testien ajaminen onnistuu esimerkiksi [Visual Studio Codessa](https://code.visualstudio.com/) painamalla play nappia FarmExerciseApplicationTests kohdassa
+Testien ajaminen onnistuu esimerkiksi [Visual Studio Codessa](https://code.visualstudio.com/) painamalla play nappia **FarmExerciseApplicationTests** kohdassa
+![TestienAjoKuva](https://user-images.githubusercontent.com/18402605/149620510-13ab4efe-7542-4256-99a4-1e27e510603d.png)
+
 
 ## Teknologiat
 Tehtävän pohja on luotu Spring https://start.spring.io/ työkalulla. 
