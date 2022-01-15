@@ -26,9 +26,13 @@ CREATE SEQUENCE public.hibernate_sequence INCREMENT 1 START 1 MINVALUE 1;
 Projekti voidaan käynnistää tämän jälkeen normaalisti Debugging tilassa. 
 
 ## Testit
+Testien tekoon hyödynnetty [JUnit 5 tutorial - Learn how to write unit tests](https://www.vogella.com/tutorials/JUnit/article.html) materiaalia.
+
+Testien ajaminen onnistuu esimerkiksi [Visual Studio Codessa](https://code.visualstudio.com/) painamalla play nappia FarmExerciseApplicationTests kohdassa
 
 ## Teknologiat
 Tehtävän pohja on luotu Spring https://start.spring.io/ työkalulla. 
+
 Tehtävässä käytettyjä teknologioita Java, Thymeleaf ja PostgreSQL.
 
 ## ToDo
