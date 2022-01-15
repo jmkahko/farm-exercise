@@ -10,7 +10,7 @@ services:
     environment: 
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: test_db
+      POSTGRES_DB: farmExercise
     ports:
       - "5432:5432"
 
