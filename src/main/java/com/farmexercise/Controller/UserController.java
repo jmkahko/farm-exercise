@@ -1,6 +1,6 @@
 package com.farmexercise.Controller;
 
-import com.farmexercise.Repository.FarmRepository;
+import com.farmexercise.Model.User;
 import com.farmexercise.Repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,22 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private FarmRepository farmRepository;
-
     @GetMapping("/lisaaKayttaja")
     public String lisaaKayttaja() {
-        
 
-        return null;
+        User kayttaja = new User();
+
+        kayttaja.setUsername("Käyttäjä");
+        kayttaja.setPassword("Salasana");
+
+        userRepository.save(kayttaja);
+
+        
+        
+        return "mittaus";
     }
+
+
+    
+
 }
