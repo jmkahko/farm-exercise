@@ -34,7 +34,7 @@ Testien ajaminen onnistuu esimerkiksi [Visual Studio Codessa](https://code.visua
 
 
 ## Teknologiat
-Tehtävän pohja on luotu Spring https://start.spring.io/ työkalulla. 
+Tehtävän pohja on luotu [Spring työkalulla](https://start.spring.io/). 
 
 Tehtävässä käytettyjä teknologioita Java, Thymeleaf ja PostgreSQL.
 
