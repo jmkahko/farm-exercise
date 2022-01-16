@@ -86,7 +86,7 @@ public class ModelTestCase {
     }
 
     @Test
-    void user() throws NoSuchAlgorithmException {
+    void user() {
         // Luodaan uusi käyttäjä
         User user = new User(1L, "Janne", "jannenSalasana", null);
 
