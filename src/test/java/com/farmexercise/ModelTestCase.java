@@ -2,7 +2,6 @@ package com.farmexercise;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
 import com.farmexercise.Model.Farm;
