@@ -50,7 +50,7 @@ public class MittauksiaYhteensa {
     }
     
     // Setterit
-    public void setId(String location) {
+    public void setLocation(String location) {
         this.location = location;
     }
     
