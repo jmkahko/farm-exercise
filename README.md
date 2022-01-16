@@ -32,7 +32,7 @@ Testien tekoon hyödynnettyjä materiaaleja:
 
 Testien ajaminen onnistuu esimerkiksi [Visual Studio Codessa](https://code.visualstudio.com/) painamalla play nappia **FarmExerciseApplicationTests** kohdassa
 
-![TestienAjoKuva](https://user-images.githubusercontent.com/18402605/149620510-13ab4efe-7542-4256-99a4-1e27e510603d.png)
+![TestienKuva](https://user-images.githubusercontent.com/18402605/149666556-925ffa4b-5ce9-4835-a1d0-5a91706f8877.png)
 
 
 ## Teknologiat
