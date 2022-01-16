@@ -1,5 +1,6 @@
 package com.farmexercise.Controller;
 
+import java.time.Instant;
 import java.util.List;
 
 import com.farmexercise.Model.MittauksiaYhteensa;
@@ -92,6 +93,13 @@ public class MeasurementController {
         model.addAttribute("yhteensaTuloksia", mittauksiaYhteensa);
 
         return "farmi";
+    }
+
+    // Tietyn farmin ja anturin mittaukset tietyltä aikaväliltä
+    @GetMapping("/haeMaatilanTietynAikavalinMittaukset/{maatila}/{sensortype}/{alkuAika}/{loppuAika}")
+    public String haeMaatilanTietynAikavalinMittaukset(Model model, @PathVariable String maatila, @PathVariable String sensortype, @PathVariable Instant alkuAika,  @PathVariable Instant loppuAika)  {
+        model.addAttribute("mittaus", measurementRepository.findByDatetimeBetweenAndLocationAndSensortype(alkuAika, loppuAika, maatila, sensortype));
+        return "mittaus";
     }
 
 }
