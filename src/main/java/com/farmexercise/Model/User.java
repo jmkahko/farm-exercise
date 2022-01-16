@@ -1,13 +1,9 @@
 package com.farmexercise.Model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -21,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="users")
+@Table(name = "users")
 public class User extends AbstractPersistable<Long> {
 
     @Id
@@ -31,11 +27,8 @@ public class User extends AbstractPersistable<Long> {
     private String kayttaja;
     private String salasana;
 
-    @ManyToMany
-    private List<Farm> farmit = new ArrayList<>();
-
     // Getterit
-    public Long getIdd() {
+    public Long getId() {
         return id;
     }
 
@@ -45,10 +38,6 @@ public class User extends AbstractPersistable<Long> {
 
     public String getPassword() {
         return salasana;
-    }
-
-    public List<Farm> getFarm() {
-        return farmit;
     }
 
     // Setterit
@@ -62,9 +51,5 @@ public class User extends AbstractPersistable<Long> {
 
     public void setPassword(String password) {
         this.salasana = password;
-    }
-
-    public void setFarm(List<Farm> farm) {
-        this.farmit = farm;
     }
 }
