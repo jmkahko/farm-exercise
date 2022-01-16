@@ -14,6 +14,7 @@ import com.farmexercise.Model.Measurement;
 import com.farmexercise.Repository.FarmRepository;
 import com.farmexercise.Repository.FileObjectRepository;
 import com.farmexercise.Repository.MeasurementRepository;
+import com.farmexercise.Service.ParserService;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -127,7 +128,7 @@ public class FileObjectController {
                 if (palat.length > 3) {
 
                     // Tarkistetaan onko value tai NULL sanaa
-                    if (!palat[3].equals("value") & !palat[3].equals("NULL")) {
+                    if (!palat[3].equals("value") & !palat[3].equals("NULL")) { 
 
                         // Tuodaan omiin muuttujiin arvot
                         String location = palat[0];
@@ -137,70 +138,46 @@ public class FileObjectController {
 
                         // Tarkistetaan onhan sensorien tyypit oikein. Accept only temperature,rainfall
                         // and PH data. Other metrics should be discarded
-                        if (sensortype.equals("temperature") || sensortype.equals("rainFall")
-                                || sensortype.equals("pH")) {
+                        if (ParserService.tarkistaSensortype(sensortype)) {
 
                             // Onko lisäys tietokantaan mahdollinen
                             Boolean lisataanko = false;
 
                             // Tarkistetaan onko lämpötila halutussa rajoissa
-                            if (sensortype.equals("temperature")) {
-                                // Lämpötila on celsiusarvo -50 ja 100 välillä
-                                if (value >= -50 && value <= 100) {
-                                    lisattyTemperature++;
-                                    lisataanko = true;
-                                } else {
-                                    System.out.println(
-                                            "VIRHE!!!! Lämpötila ei ole asteikolla: " + location + ", Päiväys: "
-                                                    + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
-                                    virhe++;
-                                }
+                            if (ParserService.tarkistaLampotila(sensortype, value)) {
+                                lisattyTemperature++;
+                                lisataanko = true;
                             }
 
                             // Tarkistaan onko sademäärä halutuissa rajoissa
-                            if (sensortype.equals("rainFall")) {
-                                // Sademäärä on positiivinen luku välillä 0 ja 500
-                                if (value >= 0.0 && value <= 500) {
-                                    lisattyRainFall++;
-                                    lisataanko = true;
-                                } else {
-                                    System.out.println(
-                                            "VIRHE!!!! Sademäärä ei ole asteikolla: " + location + ", Päiväys: "
-                                                    + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
-                                    virhe++;
-                                }
-
+                            if (ParserService.tarkistaSademaara(sensortype, value)) {
+                                lisattyRainFall++;
+                                lisataanko = true;
                             }
 
                             // Tarkistetaan onko pH arvo halutussa rajoissa
-                            if (sensortype.equals("pH")) {
-                                // pH on desimaaliarvo välillä 0-14
-                                if (value >= 0.0 && value <= 14.0) {
-                                    lisattypH++;
-                                    lisataanko = true;
-                                } else {
-                                    System.out
-                                            .println("VIRHE!!!! pH arvo ei ole asteikolla: " + location + ", Päiväys: "
-                                                    + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
-                                    virhe++;
-                                }
+                            if (ParserService.tarkistaPh(sensortype, value)) {
+                                lisattypH++;
+                                lisataanko = true;
                             }
 
-                            // Tuodaan Measurement model tallennusta varten ja alusteen jokaisella kierroksella
+                            // Tuodaan Measurement model tallennusta varten ja alusteen jokaisella
+                            // kierroksella
                             Measurement mittaus = new Measurement();
-                            
+
                             // Jos tarkistuksessa tuli TRUE niin tieto lisätään tietokantaan
                             if (lisataanko == true) {
                                 // Haetaan Farm model
                                 Farm farmi = new Farm();
 
-                                // Tarkistetaan löytyykö farmi tallennettava farmi, jos ei löydy niin luodaan uusi farmi Farm-tietokantaan
+                                // Tarkistetaan löytyykö farmi tallennettava farmi, jos ei löydy niin luodaan
+                                // uusi farmi Farm-tietokantaan
                                 if (farmRepository.findByFarmi(location) == null) {
                                     System.out.println("Luodaan uusi farmi: " + location);
                                     farmi.setFarmi(location);
                                     farmRepository.save(farmi);
                                 }
-                                
+
                                 // Tänne lisäys komento tietokantaan
                                 mittaus.setFileobjectid(fo.getId()); // Haetaan FileObject tauluun tallennetun rivin ID
                                 mittaus.setLocation(location);
@@ -209,13 +186,13 @@ public class FileObjectController {
                                 mittaus.setValue(value);
                                 measurementRepository.save(mittaus);
                                 lisatty++;
-                                
+
                                 // Listään farmiName muuttujaan farmin nimi
                                 farmiName = location;
                             }
                         } else {
                             virhe++;
-                            System.out.println("VIRHE!!!! Sensori tyyppi virheellinen " + location + ", Päiväys: "
+                            System.out.println("VIRHE!!!! Sensori tai arvo virheellinen " + location + ", Päiväys: "
                                     + datetime + ", Anturityyppi: " + sensortype + ", Arvo: " + value);
                         }
                     }
@@ -234,11 +211,13 @@ public class FileObjectController {
         System.out.println("Virheellisiä: " + virhe);
         System.out.println("Lisätyt rivit: " + lisatty);
         System.out.println("Läpi käydyt rivit: " + (riveja - 1)); // Muuten kaikki paitsi ei lueta eka riviä kun otsikko
-        System.out.println("Lisätyt! Lämpötila: " + lisattyTemperature + ", pH: " + lisattypH + ", sademäärä: " + lisattyRainFall);
+        System.out.println(
+                "Lisätyt! Lämpötila: " + lisattyTemperature + ", pH: " + lisattypH + ", sademäärä: " + lisattyRainFall);
 
         // Näytetään käyttäjälle, kun tiedosto on ladattu
         attributes.addFlashAttribute("message", "Farmin: " + farmiName + " -tiedot ladattu");
-        attributes.addFlashAttribute("messageLataus", "Lisätty: " + lisattyTemperature + " lämpötilaa, " + lisattypH + " pH-arvoa, " + lisattyRainFall + " sadearvoa");
+        attributes.addFlashAttribute("messageLataus", "Lisätty: " + lisattyTemperature + " lämpötilaa, " + lisattypH
+                + " pH-arvoa, " + lisattyRainFall + " sadearvoa");
         attributes.addFlashAttribute("messageHylatyt", "Yhteensä lisätty " + lisatty + " riviä ja hylätty " + virhe);
         return "redirect:/tallennaMittaus";
     }
@@ -251,14 +230,14 @@ public class FileObjectController {
 
         // Tuodaan FileObject modelli
         FileObject fo = fileObjectRepository.getById(id);
-        
+
         // Poistetaan tiedosto palvelimen kiintolevyltä
         File tiedosto = new File("./LadatutTiedostot/" + fo.getTiedostonnimi());
         tiedosto.delete();
 
         // Poistetaan tiedot tietokannasta
         fileObjectRepository.deleteById(id);
-        
+
         return "redirect:/tallennaMittaus";
     }
 }
