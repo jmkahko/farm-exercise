@@ -87,7 +87,7 @@ public class ModelTestCase {
     @Test
     void user() {
         // Luodaan uusi käyttäjä
-        User user = new User(1L, "Janne", "jannenSalasana", null);
+        User user = new User(1L, "Janne", "jannenSalasana");
 
         assertEquals(1L, user.getId());
         assertEquals("Janne", user.getUsername());
