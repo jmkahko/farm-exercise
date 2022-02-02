@@ -10,7 +10,6 @@ import com.farmexercise.Model.Measurement;
 import com.farmexercise.Model.MittauksiaYhteensa;
 import com.farmexercise.Model.MittausKeskiarvo;
 import com.farmexercise.Model.MittausKuukausi;
-import com.farmexercise.Model.User;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -85,12 +84,8 @@ public class ModelTestCase {
     }
 
     @Test
-    void user() {
-        // Luodaan uusi käyttäjä
-        User user = new User(1L, "Janne", "jannenSalasana");
+    void account() {
 
-        assertEquals(1L, user.getId());
-        assertEquals("Janne", user.getUsername());
-        assertEquals("jannenSalasana", user.getPassword());
-     }   
+    }
+
 }
